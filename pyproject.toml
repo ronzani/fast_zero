@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "fast-zero"
 version = "0.1.0"
-description = ""
+description = "Projeto para estudo de FastAPI"
 authors = ["Robson Ronzani <ronzani.robson@gmail.com>"]
 readme = "README.md"
 
