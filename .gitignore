@@ -10,6 +10,10 @@ __pycache__/
 ### pycharm files ###
 .idea/
 .idea/*
+
+# databade sqlite3
+database.db
+
 # C extensions
 *.so
 
