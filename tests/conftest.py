@@ -39,8 +39,8 @@ def client(session):
 @pytest.fixture()
 def user(session):
     user = User(
-        username='testeuser',
-        email='teste@email.com',
+        username='test_user',
+        email='user_teste@testemail.com',
         password='123456',
     )
 

@@ -9,15 +9,12 @@ from fast_zero.database import get_session
 from fast_zero.models import User
 from fast_zero.schemas import (
     Message,
-    UserDBSchema,
     UserListSchema,
     UserPublicSchema,
     UserSchema,
 )
 
 app = FastAPI()
-
-database = []
 
 
 @app.get('/api', status_code=HTTPStatus.OK, response_model=Message)
@@ -84,39 +81,51 @@ def list_users(
 
 @app.get('/users/{user_id}', response_model=UserPublicSchema)
 def get_user(user_id: int, session: Session = Depends(get_session)):
-    user = session.scalar(select(User).where(User.id == user_id))
+    user_db = session.scalar(select(User).where(User.id == user_id))
 
-    if not user:
+    if not user_db:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail='User not found',
         )
 
-    return user
+    return user_db
 
 
 @app.put('/users/{user_id}', response_model=UserPublicSchema)
-def update_user(user_id: int, user: UserSchema):
-    if user_id > len(database) or user_id < 1:
+def update_user(
+    user_id: int,
+    user_schema: UserSchema,
+    session: Session = Depends(get_session),
+):
+    user_db = session.scalar(select(User).where(User.id == user_id))
+    if not user_db:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail='User not found',
         )
 
-    user_with_id = UserDBSchema(**user.model_dump(), id=user_id)
-    database[user_id - 1] = user_with_id
+    user_db.username = user_schema.username
+    user_db.email = user_schema.email
+    user_db.password = user_schema.password
 
-    return user_with_id
+    session.commit()
+    session.refresh(user_db)
+
+    return user_db
 
 
 @app.delete('/users/{user_id}')
-def delete_user(user_id: int):
-    if user_id > len(database) or user_id < 1:
+def delete_user(user_id: int, session: Session = Depends(get_session)):
+    user_db = session.scalar(select(User).where(User.id == user_id))
+
+    if not user_db:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail='User not found',
         )
 
-    del database[user_id - 1]
+    session.delete(user_db)
+    session.commit()
 
     return {'message': 'User deleted'}

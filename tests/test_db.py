@@ -10,7 +10,7 @@ def test_create_user(session):
     session.add(new_user)
     session.commit()
 
-    user = session.scalar(select(User).where(User.username == 'Alice'))
+    user_bd = session.scalar(select(User).where(User.username == 'Alice'))
 
-    assert user.username == 'Alice'
-    assert user.email == 'teste@test.com'
+    assert user_bd.username == 'Alice'
+    assert user_bd.email == 'teste@test.com'
