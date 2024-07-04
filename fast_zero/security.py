@@ -3,12 +3,11 @@ from http import HTTPStatus
 
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from jwt import encode, decode, DecodeError
+from jwt import DecodeError, decode, encode
 from pwdlib import PasswordHash
-from zoneinfo import ZoneInfo
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from zoneinfo import ZoneInfo
 
 from fast_zero.database import get_session
 from fast_zero.models import User
@@ -20,7 +19,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 pwd_context = PasswordHash.recommended()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 
 def create_access_token(data: dict):
@@ -58,11 +57,9 @@ def get_current_user(
     except DecodeError:
         raise credentials_exception
 
-    user = session.scalar(
-        select(User).where(User.email == token_data.username)
-    )
+    user_db = session.scalar(select(User).where(User.email == token_data.username))
 
-    if user is None:
+    if user_db is None:
         raise credentials_exception
 
-    return user
+    return user_db

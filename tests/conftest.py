@@ -58,3 +58,15 @@ def user(session):
 @pytest.fixture()
 def user_public_schema(user):
     return UserPublicSchema.model_validate(user).model_dump()
+
+
+@pytest.fixture()
+def token(client, user):
+    response = client.post(
+        '/token',
+        data={
+            'username': user.email,
+            'password': user.clean_password,
+        },
+    )
+    return response.json()['access_token']

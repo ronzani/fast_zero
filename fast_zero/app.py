@@ -15,7 +15,7 @@ from fast_zero.schemas import (
     UserPublicSchema,
     UserSchema,
 )
-from fast_zero.security import create_access_token, get_password_hash, verify_password
+from fast_zero.security import create_access_token, get_current_user, get_password_hash, verify_password
 
 app = FastAPI()
 
@@ -96,35 +96,37 @@ def update_user(
     user_id: int,
     user_schema: UserSchema,
     session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ):
-    user_db = session.scalar(select(User).where(User.id == user_id))
-    if not user_db:
+    if current_user.id != user_id:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail='User not found',
+            status_code=HTTPStatus.FORBIDDEN,
+            detail='Not enough permission',
         )
 
-    user_db.username = user_schema.username
-    user_db.email = user_schema.email
-    user_db.password = get_password_hash(user_schema.password)
+    current_user.username = user_schema.username
+    current_user.email = user_schema.email
+    current_user.password = get_password_hash(user_schema.password)
 
     session.commit()
-    session.refresh(user_db)
+    session.refresh(current_user)
 
-    return user_db
+    return current_user
 
 
 @app.delete('/users/{user_id}')
-def delete_user(user_id: int, session: Session = Depends(get_session)):
-    user_db = session.scalar(select(User).where(User.id == user_id))
-
-    if not user_db:
+def delete_user(
+    user_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    if current_user.id != user_id:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail='User not found',
+            status_code=HTTPStatus.FORBIDDEN,
+            detail='Not enough permission',
         )
 
-    session.delete(user_db)
+    session.delete(current_user)
     session.commit()
 
     return {'message': 'User deleted'}
