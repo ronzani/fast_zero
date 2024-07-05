@@ -28,7 +28,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
-line-length = 119
+line-length = 89
 extend-exclude = ['migrations']
 [tool.ruff.lint]
 preview = true
