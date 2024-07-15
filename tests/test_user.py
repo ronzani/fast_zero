@@ -25,7 +25,7 @@ def test_create_user_username_exists(client, user):
     response = client.post(
         '/users/',
         json={
-            'username': 'test_user',
+            'username': f'{user.username}',
             'email': 'user_teste_alterado@testemail.com',
             'password': '123456',
         },
@@ -40,7 +40,7 @@ def test_create_user_email_exists(client, user):
         '/users/',
         json={
             'username': 'test_user_alterado',
-            'email': 'user_teste@testemail.com',
+            'email': f'{user.email}',
             'password': '123456',
         },
     )
@@ -57,7 +57,7 @@ def test_list_users(client, user_public_schema):
 
 
 def test_get_user_ok(client, user_public_schema):
-    response = client.get('/users/1')
+    response = client.get(f'/users/{user_public_schema["id"]}')
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == user_public_schema
@@ -114,9 +114,9 @@ def test_delete_user(client, user, token):
     assert response_delete.json() == {'message': 'User deleted'}
 
 
-def test_delete_user_forbidden(client, token):
+def test_delete_user_forbidden(client, user, other_user, token):
     response = client.delete(
-        '/users/456',
+        f'/users/{other_user.id}',
         headers={'Authorization': f'Bearer {token}'},
     )
 
@@ -124,9 +124,9 @@ def test_delete_user_forbidden(client, token):
     assert response.json() == {'detail': 'Not enough permission'}
 
 
-def test_delete_user_unauthorized_invalid_token(client, token):
+def test_delete_user_unauthorized_invalid_token(client, user, token):
     response = client.delete(
-        '/users/456',
+        f'/users/{user.id}',
         headers={'Authorization': 'Bearer invalid_token'},
     )
 
@@ -134,12 +134,12 @@ def test_delete_user_unauthorized_invalid_token(client, token):
     assert response.json() == {'detail': 'Could not validate credentials'}
 
 
-def test_delete_user_unauthorized_invalid_token_user(client):
-    data = {'sub': 'test@email.com'}
+def test_delete_user_unauthorized_invalid_token_user(client, user):
+    data = {'sub': 'wrong_email@email.com'}
     _token = create_access_token(data)
 
     response = client.delete(
-        '/users/456',
+        f'/users/{user.id}',
         headers={'Authorization': f'Bearer {_token}'},
     )
 
