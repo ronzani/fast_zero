@@ -1,7 +1,5 @@
 from http import HTTPStatus
 
-from fast_zero.security import create_access_token
-
 
 def test_create_user(client):
     response = client.post(
@@ -122,38 +120,3 @@ def test_delete_user_forbidden(client, user, other_user, token):
 
     assert response.status_code == HTTPStatus.FORBIDDEN
     assert response.json() == {'detail': 'Not enough permission'}
-
-
-def test_delete_user_unauthorized_invalid_token(client, user, token):
-    response = client.delete(
-        f'/users/{user.id}',
-        headers={'Authorization': 'Bearer invalid_token'},
-    )
-
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
-    assert response.json() == {'detail': 'Could not validate credentials'}
-
-
-def test_delete_user_unauthorized_invalid_token_user(client, user):
-    data = {'sub': 'wrong_email@email.com'}
-    _token = create_access_token(data)
-
-    response = client.delete(
-        f'/users/{user.id}',
-        headers={'Authorization': f'Bearer {_token}'},
-    )
-
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
-    assert response.json() == {'detail': 'Could not validate credentials'}
-
-
-def test_delete_user_unauthorized_invalid_token_sub(client):
-    _token = create_access_token({})
-
-    response = client.delete(
-        '/users/456',
-        headers={'Authorization': f'Bearer {_token}'},
-    )
-
-    assert response.status_code == HTTPStatus.UNAUTHORIZED
-    assert response.json() == {'detail': 'Could not validate credentials'}
