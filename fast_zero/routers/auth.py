@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from fast_zero.database import get_session
 from fast_zero.models import User
 from fast_zero.schemas import TokenSchema
-from fast_zero.security import create_access_token, verify_password, get_current_user
+from fast_zero.security import create_access_token, get_current_user, verify_password
 
 router = APIRouter(
     prefix='/auth',
