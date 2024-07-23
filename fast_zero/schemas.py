@@ -1,6 +1,16 @@
+from typing import Generic, List, Optional, TypeVar
+
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 from fast_zero.models import ToDoState
+
+SchemaType = TypeVar('SchemaType', bound=BaseModel)
+
+
+class PaginationBase(BaseModel, Generic[SchemaType]):
+    result: Optional[List[SchemaType]] = None
+    offset: int = 0
+    limit: int = 10
 
 
 class Message(BaseModel):
@@ -37,15 +47,11 @@ class TokenDataSchema(BaseModel):
     username: str | None = None
 
 
-class TodoSchema(BaseModel):
+class ToDoSchema(BaseModel):
     title: str
     description: str
     state: ToDoState
 
 
-class TodoPublicSchema(TodoSchema):
+class ToDoPublicSchema(ToDoSchema):
     id: int
-
-
-class TodoList(BaseModel):
-    todos: list[TodoPublicSchema]

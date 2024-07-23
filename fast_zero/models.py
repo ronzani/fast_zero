@@ -1,8 +1,8 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import func, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
+from sqlalchemy import ForeignKey, func
+from sqlalchemy.orm import Mapped, mapped_column, registry
 
 table_registry = registry()
 
