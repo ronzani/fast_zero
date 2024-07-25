@@ -1,6 +1,6 @@
 from sqlalchemy import select
 
-from fast_zero.models import User
+from fast_zero.models import User, ToDo
 
 
 def test_create_user(session):
@@ -14,18 +14,18 @@ def test_create_user(session):
     assert user_bd.email == 'teste@test.com'
 
 
-# def test_create_todo(session, user: User):
-#     todo = ToDo(
-#         title='Test Todo',
-#         description='Test Desc',
-#         state='draft',
-#         user_id=user.id,
-#     )
-#
-#     session.add(todo)
-#     session.commit()
-#     session.refresh(todo)
-#
-#     user = session.scalar(select(User).where(User.id == user.id))
-#
-#     assert todo in user.todo
+def test_create_todo(session, user: User):
+    todo = ToDo(
+        title='Test Todo',
+        description='Test Desc',
+        state='draft',
+        user_id=user.id,
+    )
+
+    session.add(todo)
+    session.commit()
+    session.refresh(todo)
+
+    user = session.scalar(select(User).where(User.id == user.id))
+
+    assert todo in user.todos

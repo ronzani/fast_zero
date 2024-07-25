@@ -167,3 +167,62 @@ def test_list_todos_filter_combined_should_return_3(
     )
 
     assert len(response.json()['result']) == expected_to_dos
+
+
+def test_edit_todo_ok(session, client, user, header_authorization):
+    todo = ToDoFactory(user_id=user.id)
+    session.add(todo)
+    session.commit()
+
+    response = client.patch(
+        f'/todo/{todo.id}',
+        headers=header_authorization,
+        json={
+            'title': 'Edit Title',
+            'description': 'Edit Description',
+            'state': 'doing',
+        },
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'id': todo.id,
+        'title': 'Edit Title',
+        'description': 'Edit Description',
+        'state': 'doing',
+    }
+
+
+def test_edit_todo_not_found(client, header_authorization):
+    response = client.patch(
+        '/todo/456',
+        headers=header_authorization,
+        json={'state': 'doing'},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'ToDo not found.'}
+
+
+def test_delete_todo_ok(session, client, user, header_authorization):
+    todo = ToDoFactory(user_id=user.id)
+    session.add(todo)
+    session.commit()
+
+    response = client.delete(
+        f'/todo/{todo.id}',
+        headers=header_authorization,
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'message': 'ToDo has been deleted.'}
+
+
+def test_delete_todo_not_found(client, header_authorization):
+    response = client.delete(
+        '/todo/456',
+        headers=header_authorization,
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'ToDo not found.'}

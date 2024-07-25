@@ -55,3 +55,9 @@ class ToDoSchema(BaseModel):
 
 class ToDoPublicSchema(ToDoSchema):
     id: int
+
+
+class TodoUpdateSchema(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    state: ToDoState | None = None
