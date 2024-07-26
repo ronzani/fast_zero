@@ -68,6 +68,18 @@ def list_to_dos(  # noqa: PLR0913 PLR0917
     return {'result': to_dos, 'offset': offset, 'limit': limit}
 
 
+@router.get('/{todo_id}', response_model=ToDoPublicSchema)
+def get_to_do(todo_id: int, session: Session, user: User):
+    to_do_db = session.scalar(
+        select(ToDo).where(ToDo.user_id == user.id, ToDo.id == todo_id)
+    )
+
+    if not to_do_db:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='ToDo not found.')
+
+    return to_do_db
+
+
 @router.patch('/{todo_id}', response_model=ToDoPublicSchema)
 def edit_to_do(
     todo_id: int,

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Generic, List, Optional, TypeVar
 
 from pydantic import BaseModel, ConfigDict, EmailStr
@@ -55,6 +56,8 @@ class ToDoSchema(BaseModel):
 
 class ToDoPublicSchema(ToDoSchema):
     id: int
+    created_at: datetime
+    updated_at: datetime
 
 
 class TodoUpdateSchema(BaseModel):
